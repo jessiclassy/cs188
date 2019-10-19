@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -18,7 +18,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -60,8 +60,19 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
-        # Write value iteration code here
-        "*** YOUR CODE HERE ***"
+        states = self.mdp.getStates() #states are (x, y) coordinates
+        for s in states: #iterate thru
+            vals = self.getValue(s) #V_(k-1)
+            for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
+                successors, transitions = self.mdp.getTransitionStatesAndProbs(s, a) #transitions are nested tuples of successor state and probability
+                for nextS in range(len(successors)):
+                    reward = self.mdp.getReward(s, a, successors[nextS]) #rewards is a float for the reward received when transitioning from s to nextS
+                    currVal = transitions[nextS] * (reward + self.getValue(successors[nextS]))
+                    vals.extend(currVal)
+
+        #
+        # mdp.isTerminal(state)
+
 
 
     def getValue(self, state):
@@ -150,4 +161,3 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
-
