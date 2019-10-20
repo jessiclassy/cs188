@@ -69,25 +69,19 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         count = self.iterations
         while (count):
-            print("runValueIteration will be looped", count, 'times')
+            # print("runValueIteration will be looped", count, 'times')
             updatedValues = self.values.copy() #copy of old values to do 'batch' value iteration
             states = self.mdp.getStates() #states are (x, y) coordinates
 
             for s in states: #iterate thru states
                 if self.mdp.isTerminal(s):
                     continue
-                # bestAction = self.computeActionFromValues(s) #get best action
-                # bestUtility = self.computeQValueFromValues(s, bestAction) #get best utility
-                
-                maxVal = float('-inf')
+                maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
                 for a in self.mdp.getPossibleActions(s):
                     tempSum = self.computeQValueFromValues(s, a)
                     if tempSum > maxVal:
                         maxVal = tempSum
-                #     qVals[tempSum] = a
-                # bestUtility = max(qVals.values())
-                updatedValues[s] = maxVal #assign to copy
-            print("runValueIteration is was run")
+                updatedValues[s] = maxVal #max sum assign to respective state in copied values
             self.values = updatedValues
             count -= 1
 
@@ -114,9 +108,6 @@ class ValueIterationAgent(ValueEstimationAgent):
             oldSuccessorVal = self.getValue(successorState)
             successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
             sum += successorUtility
-        #     print('Start: ', state, 'uses ', action)
-        #     print('Successor: ', successorState)
-        # print('Sum: ', sum)
         return sum
 
     def computeActionFromValues(self, state):
@@ -128,7 +119,6 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        # print('THIS IS OUR ACTIONS FUNCTION!!!!!!!!!!!!!!!!!!!')
         if self.mdp.isTerminal(state):
             return None
         else:
@@ -137,7 +127,6 @@ class ValueIterationAgent(ValueEstimationAgent):
                 sum = self.computeQValueFromValues(state, a)
                 qVals[sum] = a
             bestAction = qVals[max(qVals.keys())]
-            # print('Starting from', state, 'the best action is', bestAction, ' and our values function is', self.values)
             return bestAction
 
     def getPolicy(self, state):
