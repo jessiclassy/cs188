@@ -60,18 +60,23 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.runValueIteration()
 
     def runValueIteration(self):
+        """
+            Update the .values attribute of SELF
+        """
         states = self.mdp.getStates() #states are (x, y) coordinates
+        vals = self.values
         for s in states: #iterate thru
-            vals = self.getValue(s) #V_(k-1)
             for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
-                successors, transitions = self.mdp.getTransitionStatesAndProbs(s, a) #transitions are nested tuples of successor state and probability
-                for nextS in range(len(successors)):
-                    reward = self.mdp.getReward(s, a, successors[nextS]) #rewards is a float for the reward received when transitioning from s to nextS
-                    currVal = transitions[nextS] * (reward + self.getValue(successors[nextS]))
-                    vals.extend(currVal)
+                successors = self.mdp.getTransitionStatesAndProbs(s, a) #transitions are nested tuples of successor state and probability
+                for i in range(len(successors)):
+                    successorState = successors[i][0]
+                    successorTransition = successors[i][1]
+                    reward = self.mdp.getReward(s, a, successorState) #rewards is a float for the reward received when transitioning from s to nextS
+                    oldSuccessorVal = self.getValue(successorState)
+                    currVal = ((oldSuccessorVal))
+                    print(type(currVal))
 
-        #
-        # mdp.isTerminal(state)
+            self.values[s] = vals
 
 
 
