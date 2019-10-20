@@ -63,22 +63,57 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
             Update the .values attribute of SELF
         """
+        print(self.iterations)
+        # print(self.iterations)
+        # states = self.mdp.getStates() #states are (x, y) coordinates
+        # for s in states: #iterate thru states
+        #     vals = []
+        #     if self.mdp.isTerminal(s):
+        #         continue
+        #     else:
+        #         for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
+        #             successors = self.mdp.getTransitionStatesAndProbs(s, a) #transitions are nested tuples of successor state and probability
+        #             sum = 0
+        #             print('State: ', s)
+        #             for i in range(len(successors)):
+        #                 successorState = successors[i][0]
+        #                 print('Successor state: ', successorState)
+        #                 successorTransition = successors[i][1]
+        #                 reward = self.mdp.getReward(s, a, successorState) #rewards is a float for the reward received when transitioning from s to nextS
+
+        #                 if self.mdp.isTerminal(successorState) or successorState == (0, 0):
+        #                     successorUtility = 0
+        #                     sum += successorTransition * reward
+        #                 else:
+        #                     oldSuccessorVal = self.getValue(successorState)
+        #                     successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
+        #                     sum += successorUtility
+
+        #             print(sum)
+        #             vals.append(sum)
+        #         self.values[s] = max(vals)
+        
         states = self.mdp.getStates() #states are (x, y) coordinates
-        vals = self.values
-        for s in states: #iterate thru
-            for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
-                successors = self.mdp.getTransitionStatesAndProbs(s, a) #transitions are nested tuples of successor state and probability
-                for i in range(len(successors)):
-                    successorState = successors[i][0]
-                    successorTransition = successors[i][1]
-                    reward = self.mdp.getReward(s, a, successorState) #rewards is a float for the reward received when transitioning from s to nextS
-                    oldSuccessorVal = self.getValue(successorState)
-                    currVal = ((oldSuccessorVal))
-                    print(type(currVal))
-
-            self.values[s] = vals
-
-
+        count = self.iterations
+        
+        valuesCopy = self.values.copy()
+        while (count):
+            for s in states: #iterate thru states
+                # print('hello:', s)
+                qVals = []
+                if self.mdp.isTerminal(s):
+                    continue
+                else:
+                    for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
+                        sum = self.computeQValueFromValues(s, a)
+                        qVals.append(sum)
+                    print(a, self.values)
+                print('qval list', qVals)
+                bestSum = max(qVals)
+                valuesCopy[s] = bestSum
+            count -= 1
+        self.values = valuesCopy
+            
 
     def getValue(self, state):
         """
@@ -93,7 +128,29 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        successors = self.mdp.getTransitionStatesAndProbs(state, action) #transitions are nested tuples of successor state and probability
+        sum = 0
+        for i in range(len(successors)):
+            successorState = successors[i][0]
+            successorTransition = successors[i][1]
+            reward = self.mdp.getReward(state, action, successorState) #rewards is a float for the reward received when transitioning from s to nextS
+            
+            oldSuccessorVal = self.getValue(successorState)
+            successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
+            sum += successorUtility
+            print('Start: ', state, 'uses ', action)
+            print('Successor: ', successorState)
+            # print('Sum: ', sum)
+            
+            # if self.mdp.isTerminal(successorState) or successorState == (0, 0):
+            #     # successorUtility = 0
+            #     sum += successorTransition * reward
+            # else:
+            #     oldSuccessorVal = self.getValue(successorState)
+            #     successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
+            #     sum += successorUtility
+        print('Sum: ', sum)
+        return sum
 
     def computeActionFromValues(self, state):
         """
@@ -105,6 +162,21 @@ class ValueIterationAgent(ValueEstimationAgent):
           terminal state, you should return None.
         """
         "*** YOUR CODE HERE ***"
+        print('THIS IS OUR ACTIONS FUNCTION!!!!!!!!!!!!!!!!!!!')
+        count = self.iterations
+
+        while (count):
+            count -= 1
+            if self.mdp.isTerminal(state):
+                return None
+            else:
+                qVals = {}
+                for a in self.mdp.getPossibleActions(state): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
+                    sum = self.computeQValueFromValues(state, a)
+                    qVals[sum] = a
+                bestAction = qVals[max(qVals.keys())]
+                return bestAction
+        return None
         util.raiseNotDefined()
 
     def getPolicy(self, state):
