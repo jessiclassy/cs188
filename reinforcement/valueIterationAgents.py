@@ -61,59 +61,32 @@ class ValueIterationAgent(ValueEstimationAgent):
 
     def runValueIteration(self):
         """
-            Update the .values attribute of SELF
+            Update the .values attribute of SELF. Make a copy of SELF.values,
+            and while SELF.iterations is non-zero, loop through computing the
+            best Q-value and its corresponding action. The best Q-value is
+            assigned as the value of SELF.values[state]
         """
-        print(self.iterations)
-        # print(self.iterations)
-        # states = self.mdp.getStates() #states are (x, y) coordinates
-        # for s in states: #iterate thru states
-        #     vals = []
-        #     if self.mdp.isTerminal(s):
-        #         continue
-        #     else:
-        #         for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
-        #             successors = self.mdp.getTransitionStatesAndProbs(s, a) #transitions are nested tuples of successor state and probability
-        #             sum = 0
-        #             print('State: ', s)
-        #             for i in range(len(successors)):
-        #                 successorState = successors[i][0]
-        #                 print('Successor state: ', successorState)
-        #                 successorTransition = successors[i][1]
-        #                 reward = self.mdp.getReward(s, a, successorState) #rewards is a float for the reward received when transitioning from s to nextS
 
-        #                 if self.mdp.isTerminal(successorState) or successorState == (0, 0):
-        #                     successorUtility = 0
-        #                     sum += successorTransition * reward
-        #                 else:
-        #                     oldSuccessorVal = self.getValue(successorState)
-        #                     successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
-        #                     sum += successorUtility
-
-        #             print(sum)
-        #             vals.append(sum)
-        #         self.values[s] = max(vals)
-        
         states = self.mdp.getStates() #states are (x, y) coordinates
         count = self.iterations
-        
-        valuesCopy = self.values.copy()
+
+        updatedValues = self.values.copy() #copy of old values to do 'batch' value iteration
+
         while (count):
+            print("runValueIteration will be looped", count, 'times')
             for s in states: #iterate thru states
                 # print('hello:', s)
-                qVals = []
                 if self.mdp.isTerminal(s):
                     continue
                 else:
-                    for a in self.mdp.getPossibleActions(s): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
-                        sum = self.computeQValueFromValues(s, a)
-                        qVals.append(sum)
-                    print(a, self.values)
-                print('qval list', qVals)
-                bestSum = max(qVals)
-                valuesCopy[s] = bestSum
+                    bestAction = self.computeActionFromValues(s) #get best action
+                    bestUtility = self.computeQValueFromValues(s, bestAction) #get best utility
+                    updatedValues[s] = bestUtility #assign to copy
             count -= 1
-        self.values = valuesCopy
-            
+        print("runValueIteration is was run")
+        self.values = updatedValues
+
+
 
     def getValue(self, state):
         """
@@ -127,28 +100,18 @@ class ValueIterationAgent(ValueEstimationAgent):
           Compute the Q-value of action in state from the
           value function stored in self.values.
         """
-        "*** YOUR CODE HERE ***"
-        successors = self.mdp.getTransitionStatesAndProbs(state, action) #transitions are nested tuples of successor state and probability
+        successors = self.mdp.getTransitionStatesAndProbs(state, action) #transitions are  tuples of (successor state, probability)
         sum = 0
         for i in range(len(successors)):
             successorState = successors[i][0]
             successorTransition = successors[i][1]
             reward = self.mdp.getReward(state, action, successorState) #rewards is a float for the reward received when transitioning from s to nextS
-            
+
             oldSuccessorVal = self.getValue(successorState)
             successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
             sum += successorUtility
             print('Start: ', state, 'uses ', action)
             print('Successor: ', successorState)
-            # print('Sum: ', sum)
-            
-            # if self.mdp.isTerminal(successorState) or successorState == (0, 0):
-            #     # successorUtility = 0
-            #     sum += successorTransition * reward
-            # else:
-            #     oldSuccessorVal = self.getValue(successorState)
-            #     successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
-            #     sum += successorUtility
         print('Sum: ', sum)
         return sum
 
@@ -161,23 +124,19 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        "*** YOUR CODE HERE ***"
         print('THIS IS OUR ACTIONS FUNCTION!!!!!!!!!!!!!!!!!!!')
         count = self.iterations
 
-        while (count):
-            count -= 1
-            if self.mdp.isTerminal(state):
-                return None
-            else:
-                qVals = {}
-                for a in self.mdp.getPossibleActions(state): #actions are tuples with values 'north', 'south', 'west',' east', a/o 'exit'
-                    sum = self.computeQValueFromValues(state, a)
-                    qVals[sum] = a
-                bestAction = qVals[max(qVals.keys())]
-                return bestAction
-        return None
-        util.raiseNotDefined()
+        if self.mdp.isTerminal(state):
+            return None
+        else:
+            qVals = {}
+            for a in self.mdp.getPossibleActions(state):
+                sum = self.computeQValueFromValues(state, a)
+                qVals[sum] = a
+            bestAction = qVals[max(qVals.keys())]
+            print('Starting from', state, 'the best action is', bestAction, ' and our values function is', self.values)
+            return bestAction
 
     def getPolicy(self, state):
         return self.computeActionFromValues(state)
