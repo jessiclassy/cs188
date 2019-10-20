@@ -67,25 +67,29 @@ class ValueIterationAgent(ValueEstimationAgent):
             assigned as the value of SELF.values[state]
         """
 
-        states = self.mdp.getStates() #states are (x, y) coordinates
         count = self.iterations
-
-        updatedValues = self.values.copy() #copy of old values to do 'batch' value iteration
-
         while (count):
             print("runValueIteration will be looped", count, 'times')
+            updatedValues = self.values.copy() #copy of old values to do 'batch' value iteration
+            states = self.mdp.getStates() #states are (x, y) coordinates
+
             for s in states: #iterate thru states
-                # print('hello:', s)
                 if self.mdp.isTerminal(s):
                     continue
-                else:
-                    bestAction = self.computeActionFromValues(s) #get best action
-                    bestUtility = self.computeQValueFromValues(s, bestAction) #get best utility
-                    updatedValues[s] = bestUtility #assign to copy
+                # bestAction = self.computeActionFromValues(s) #get best action
+                # bestUtility = self.computeQValueFromValues(s, bestAction) #get best utility
+                
+                maxVal = float('-inf')
+                for a in self.mdp.getPossibleActions(s):
+                    tempSum = self.computeQValueFromValues(s, a)
+                    if tempSum > maxVal:
+                        maxVal = tempSum
+                #     qVals[tempSum] = a
+                # bestUtility = max(qVals.values())
+                updatedValues[s] = maxVal #assign to copy
+            print("runValueIteration is was run")
+            self.values = updatedValues
             count -= 1
-        print("runValueIteration is was run")
-        self.values = updatedValues
-
 
 
     def getValue(self, state):
@@ -110,9 +114,9 @@ class ValueIterationAgent(ValueEstimationAgent):
             oldSuccessorVal = self.getValue(successorState)
             successorUtility = successorTransition * (reward + (self.discount * oldSuccessorVal))
             sum += successorUtility
-            print('Start: ', state, 'uses ', action)
-            print('Successor: ', successorState)
-        print('Sum: ', sum)
+        #     print('Start: ', state, 'uses ', action)
+        #     print('Successor: ', successorState)
+        # print('Sum: ', sum)
         return sum
 
     def computeActionFromValues(self, state):
@@ -124,9 +128,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        print('THIS IS OUR ACTIONS FUNCTION!!!!!!!!!!!!!!!!!!!')
-        count = self.iterations
-
+        # print('THIS IS OUR ACTIONS FUNCTION!!!!!!!!!!!!!!!!!!!')
         if self.mdp.isTerminal(state):
             return None
         else:
@@ -135,7 +137,7 @@ class ValueIterationAgent(ValueEstimationAgent):
                 sum = self.computeQValueFromValues(state, a)
                 qVals[sum] = a
             bestAction = qVals[max(qVals.keys())]
-            print('Starting from', state, 'the best action is', bestAction, ' and our values function is', self.values)
+            # print('Starting from', state, 'the best action is', bestAction, ' and our values function is', self.values)
             return bestAction
 
     def getPolicy(self, state):
