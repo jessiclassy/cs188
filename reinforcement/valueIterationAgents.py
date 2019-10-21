@@ -189,16 +189,15 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         count = self.iterations
         states = self.mdp.getStates() #states are (x, y) coordinates
         stateIndex = 0
-        while (count):
+        while stateIndex <= count:
             currState = states[stateIndex]
-            if self.mdp.isTerminal(currState):
-                continue
-            maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
-            for a in self.mdp.getPossibleActions(currState):
-                tempSum = self.computeQValueFromValues(currState, a)
-                if tempSum > maxVal:
-                    maxVal = tempSum
-            self.values[currState] = maxVal #max sum assign to respective state in copied values
+            if not self.mdp.isTerminal(currState):
+                maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
+                for a in self.mdp.getPossibleActions(currState):
+                    tempSum = self.computeQValueFromValues(currState, a)
+                    if tempSum > maxVal:
+                        maxVal = tempSum
+                self.values[currState] = maxVal #max sum assign to respective state in copied values
             count -= 1
             stateIndex += 1
 
