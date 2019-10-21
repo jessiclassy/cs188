@@ -168,24 +168,6 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
-        # count = self.iterations
-        # while (count):
-        #     # print("runValueIteration will be looped", count, 'times')
-        #     updatedValues = self.values.copy() #copy of old values to do 'batch' value iteration
-        #     states = self.mdp.getStates() #states are (x, y) coordinates
-
-        #     for s in states: #iterate thru states
-        #         if self.mdp.isTerminal(s):
-        #             continue
-        #         maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
-        #         for a in self.mdp.getPossibleActions(s):
-        #             tempSum = self.computeQValueFromValues(s, a)
-        #             if tempSum > maxVal:
-        #                 maxVal = tempSum
-        #         updatedValues[s] = maxVal #max sum assign to respective state in copied values
-        #     self.values = updatedValues
-        #     count -= 1
-
         count = self.iterations
         states = self.mdp.getStates() #states are (x, y) coordinates
         stateIndex = 0
@@ -223,3 +205,50 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        count = self.iterations
+        states = self.mdp.getStates() #states are (x, y) coordinates
+        predecessors = {}
+        fringe = util.PriorityQueue()
+
+        for s in states: #iterate through all states to find predecessors
+            if not self.mdp.isTerminal(s):
+                for a in self.mdp.getPossibleActions(s):
+                    for successorState, probability in self.mdp.getTransitionStatesAndProbs(s, a): #successor state and probability
+                        if probability > 0:
+                            if successorState not in predecessors.keys():
+                                predecessors[successorState] = {s}
+                            else:
+                                predecessors[successorState].add(s)
+
+        for s in states:
+            if not self.mdp.isTerminal(s):
+                maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
+                for a in self.mdp.getPossibleActions(s):
+                    tempSum = self.computeQValueFromValues(s, a)
+                    if tempSum > maxVal:
+                        maxVal = tempSum
+                diff = abs(self.values[s] - maxVal)
+                fringe.update(s, -diff)
+
+        while (count):
+            if fringe.isEmpty():
+                break #terminate?
+            s = fringe.pop()
+            if not self.mdp.isTerminal(s):
+                maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
+                for a in self.mdp.getPossibleActions(s):
+                    tempSum = self.computeQValueFromValues(s, a)
+                    if tempSum > maxVal:
+                        maxVal = tempSum
+                self.values[s] = maxVal #max sum assign to respective state in copied values
+            for p in predecessors[s]:
+                maxVal = float('-inf') 
+                for a in self.mdp.getPossibleActions(p):
+                    tempSum = self.computeQValueFromValues(p, a)
+                    if tempSum > maxVal:
+                        maxVal = tempSum
+                diff = abs(self.values[p] - tempSum)
+            if diff > self.theta:
+                fringe.update(p, -diff)
+
+            count -= 1
