@@ -168,6 +168,40 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
 
     def runValueIteration(self):
         "*** YOUR CODE HERE ***"
+        # count = self.iterations
+        # while (count):
+        #     # print("runValueIteration will be looped", count, 'times')
+        #     updatedValues = self.values.copy() #copy of old values to do 'batch' value iteration
+        #     states = self.mdp.getStates() #states are (x, y) coordinates
+
+        #     for s in states: #iterate thru states
+        #         if self.mdp.isTerminal(s):
+        #             continue
+        #         maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
+        #         for a in self.mdp.getPossibleActions(s):
+        #             tempSum = self.computeQValueFromValues(s, a)
+        #             if tempSum > maxVal:
+        #                 maxVal = tempSum
+        #         updatedValues[s] = maxVal #max sum assign to respective state in copied values
+        #     self.values = updatedValues
+        #     count -= 1
+
+        count = self.iterations
+        states = self.mdp.getStates() #states are (x, y) coordinates
+        stateIndex = 0
+        while (count):
+            currState = states[stateIndex]
+            if self.mdp.isTerminal(currState):
+                continue
+            maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
+            for a in self.mdp.getPossibleActions(currState):
+                tempSum = self.computeQValueFromValues(currState, a)
+                if tempSum > maxVal:
+                    maxVal = tempSum
+            self.values[currState] = maxVal #max sum assign to respective state in copied values
+            count -= 1
+            stateIndex += 1
+
 
 class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
     """
