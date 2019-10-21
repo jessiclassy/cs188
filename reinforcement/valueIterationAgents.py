@@ -189,7 +189,9 @@ class AsynchronousValueIterationAgent(ValueIterationAgent):
         count = self.iterations
         states = self.mdp.getStates() #states are (x, y) coordinates
         stateIndex = 0
-        while stateIndex <= count:
+        while (count):
+            if stateIndex > len(states) - 1:
+                stateIndex = 0
             currState = states[stateIndex]
             if not self.mdp.isTerminal(currState):
                 maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
