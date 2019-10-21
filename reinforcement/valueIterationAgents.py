@@ -234,20 +234,6 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         #for each iteration, update SELF.values for the state S with highest priority; add the predecessors of S to the fringe
         while (count):
             if fringe.isEmpty():
-<<<<<<< HEAD
-                break #terminate
-            else:
-                s = fringe.pop()
-                if not self.mdp.isTerminal(s):
-                    maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
-                    for a in self.mdp.getPossibleActions(s):
-                        tempSum = self.computeQValueFromValues(s, a)
-                        if tempSum > maxVal:
-                            maxVal = tempSum
-                    self.values[s] = maxVal #max sum assign to respective state in copied values
-                for p in predecessors[s]:
-                    maxVal = float('-inf')
-=======
                 break #terminate?
             s = fringe.pop()
             if not self.mdp.isTerminal(s):
@@ -259,8 +245,7 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
                 self.values[s] = maxVal
 
                 for p in predecessors[s]:
-                    maxVal = float('-inf') 
->>>>>>> 9eec70c33835174b45d59c64af3f8e48c03d3ae3
+                    maxVal = float('-inf')
                     for a in self.mdp.getPossibleActions(p):
                         tempSum = self.computeQValueFromValues(p, a)
                         if tempSum > maxVal:
