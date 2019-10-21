@@ -204,7 +204,7 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
         ValueIterationAgent.__init__(self, mdp, discount, iterations)
 
     def runValueIteration(self):
-        "*** YOUR CODE HERE ***"
+
         count = self.iterations
         states = self.mdp.getStates() #states are (x, y) coordinates
         predecessors = {}
@@ -220,6 +220,7 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
                             else:
                                 predecessors[successorState].add(s)
 
+        #for each non-terminal state, add it to FRINGE with priority DIFF
         for s in states:
             if not self.mdp.isTerminal(s):
                 maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
@@ -230,25 +231,27 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
                 diff = abs(self.values[s] - maxVal)
                 fringe.update(s, -diff)
 
+        #for each iteration, update SELF.values for the state S with highest priority; add the predecessors of S to the fringe
         while (count):
             if fringe.isEmpty():
-                break #terminate?
-            s = fringe.pop()
-            if not self.mdp.isTerminal(s):
-                maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
-                for a in self.mdp.getPossibleActions(s):
-                    tempSum = self.computeQValueFromValues(s, a)
-                    if tempSum > maxVal:
-                        maxVal = tempSum
-                self.values[s] = maxVal #max sum assign to respective state in copied values
-            for p in predecessors[s]:
-                maxVal = float('-inf') 
-                for a in self.mdp.getPossibleActions(p):
-                    tempSum = self.computeQValueFromValues(p, a)
-                    if tempSum > maxVal:
-                        maxVal = tempSum
-                diff = abs(self.values[p] - tempSum)
-            if diff > self.theta:
-                fringe.update(p, -diff)
+                break #terminate
+            else:
+                s = fringe.pop()
+                if not self.mdp.isTerminal(s):
+                    maxVal = float('-inf') #initialize max variable that updates only when sum is greater than previous
+                    for a in self.mdp.getPossibleActions(s):
+                        tempSum = self.computeQValueFromValues(s, a)
+                        if tempSum > maxVal:
+                            maxVal = tempSum
+                    self.values[s] = maxVal #max sum assign to respective state in copied values
+                for p in predecessors[s]:
+                    maxVal = float('-inf')
+                    for a in self.mdp.getPossibleActions(p):
+                        tempSum = self.computeQValueFromValues(p, a)
+                        if tempSum > maxVal:
+                            maxVal = tempSum
+                    diff = abs(self.values[p] - tempSum)
+                if diff > self.theta:
+                    fringe.update(p, -diff)
 
             count -= 1
