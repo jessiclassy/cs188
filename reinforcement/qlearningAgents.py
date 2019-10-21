@@ -113,9 +113,10 @@ class QLearningAgent(ReinforcementAgent):
         if legalActions:
             bestAction = self.computeActionFromQValues(state)
             randomAction = random.choice(legalActions)
-            possibleActions = [randomAction, bestAction]
-
-            action = random.choices(possibleActions, weights = [self.epsilon, (1-self.epsilon)])
+            if util.flipCoin(self.epsilon):
+                action = randomAction
+            else:
+                action = bestAction
 
         return action
 
