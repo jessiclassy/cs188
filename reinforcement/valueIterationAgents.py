@@ -244,14 +244,15 @@ class PrioritizedSweepingValueIterationAgent(AsynchronousValueIterationAgent):
                         maxVal = tempSum
                 self.values[s] = maxVal
 
-                for p in predecessors[s]:
+            for p in predecessors[s]:
+                if not self.mdp.isTerminal(p):
                     maxVal = float('-inf')
                     for a in self.mdp.getPossibleActions(p):
                         tempSum = self.computeQValueFromValues(p, a)
                         if tempSum > maxVal:
                             maxVal = tempSum
-                    diff = abs(self.values[p] - tempSum)
-                if diff > self.theta:
-                    fringe.update(p, -diff)
+                    diff = abs(self.values[p] - maxVal)
+                    if diff > self.theta:
+                        fringe.update(p, -diff)
 
             count -= 1
