@@ -76,7 +76,7 @@ class DiscreteDistribution(dict):
         """
         fullSum = self.total()
 
-        if fullSum != 0:
+        if fullSum != 0: #if distribution is not empty
             for k in self.keys():
                 self[k] = self[k] / fullSum
 
@@ -101,23 +101,23 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        if self.total() != 1:
+        if self.total() != 1: #if not normalized, normalize the distribution
             self.normalize()
 
-        distBuckets = []
+        distBuckets = [] #list of keys and normalized range for that key
 
-        for k in self.keys():
-            newBucket = None
-            if len(distBuckets) == 0:
+        for k in self.keys(): #iterate thru keys
+            newBucket = None #initialize
+            if len(distBuckets) == 0: #base case
                 newBucket = (k, self[k])
-            else:
+            else: #add the next "bucket"
                 newBucket = (k, self[k] + distBuckets[-1][1])
             distBuckets.append(newBucket)
 
         sampleFloat = random.random()
 
         for k, b in distBuckets:
-            if sampleFloat > b:
+            if sampleFloat > b: #keep iterating until the random value <= the current "bucket"
                 continue
             else:
                 return k
