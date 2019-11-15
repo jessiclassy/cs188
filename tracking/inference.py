@@ -351,10 +351,11 @@ class ParticleFilter(InferenceModule):
         """
         self.particles = []
         "*** YOUR CODE HERE ***"
-        possible = self.legalPositions
         for i in range(self.numParticles):
-            particle = possible[i % len(possible)]
+            particle = self.legalPositions[i % len(self.legalPositions)]
             self.particles.append(particle)
+        # for i in range(self.numParticles):
+        #     self.particles.append(random.choice(self.legalPositions))
         # raiseNotDefined()
 
     def observeUpdate(self, observation, gameState):
@@ -376,7 +377,7 @@ class ParticleFilter(InferenceModule):
         weightDist = self.getBeliefDistribution()
         for ghostPos in self.allPositions:
             observationProb = self.getObservationProb(observation, pacmanPos, ghostPos, jailPos)
-            weightDist[ghostPos] *= observationProb
+            weightDist[ghostPos] = weightDist[ghostPos] * observationProb
         newSample = []
         if weightDist.total() == 0:
             self.initializeUniformly(gameState)
@@ -406,7 +407,7 @@ class ParticleFilter(InferenceModule):
         "*** YOUR CODE HERE ***"
         beliefDist = DiscreteDistribution()
         for particle in self.particles:
-            beliefDist[particle] = 1
+            beliefDist[particle] += 1
         beliefDist.normalize()
         return beliefDist
         # raiseNotDefined()
